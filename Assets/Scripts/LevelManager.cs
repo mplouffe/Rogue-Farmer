@@ -9,9 +9,6 @@ public class LevelManager : MonoBehaviour
     private Tilemap m_levelTilemap;
 
     [SerializeField]
-    private List<Tile> m_tileAssets;
-
-    [SerializeField]
     private int m_width;
 
     [SerializeField]
@@ -19,17 +16,16 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        int min = 0;
-        int max = 5;
         m_levelTilemap.ClearAllTiles();
         m_levelTilemap.size = new Vector3Int(m_width, m_height, 1);
-        foreach(var pos in m_levelTilemap.cellBounds.allPositionsWithin)
+        if (TileManager.InitializeTileData(m_levelTilemap.size))
         {
-            int randomTileIndex = Random.Range(min, max);
-            var randomTile = m_tileAssets[randomTileIndex];
-            m_levelTilemap.SetTile(pos, randomTile);
+            foreach (var pos in m_levelTilemap.cellBounds.allPositionsWithin)
+            {
+                m_levelTilemap.SetTile(pos, TileManager.GetTileData(pos).Tile);
+            }
+            LevelBounds.SetLevelBounds(m_levelTilemap.size);
         }
-        LevelBounds.SetLevelBounds(m_levelTilemap.size);
     }
 }
 
@@ -41,10 +37,4 @@ public enum TileTypes
     Rock,
     Tree,
     Shrub
-}
-
-public enum SanityCheck
-{
-    sane,
-    insane
 }

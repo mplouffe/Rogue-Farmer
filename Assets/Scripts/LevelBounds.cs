@@ -10,7 +10,7 @@ public class LevelBounds : MonoBehaviour
     [SerializeField]
     private PolygonCollider2D m_levelBoundsCollider;
 
-    private void Start()
+    private void Awake()
     {
         if (Instance != null && Instance != this)
         {
