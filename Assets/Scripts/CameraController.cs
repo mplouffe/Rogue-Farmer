@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class CameraController : MonoBehaviour
 {
@@ -10,11 +11,13 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private Camera m_mainCamera;
 
+    [SerializeField]
+    private PixelPerfectCamera m_pixelPerfectCamera;
+
     private RectTransform m_cameraRectTransform;
 
     private void Start()
     {
-        Debug.Log("mainCameraPosition: " + m_mainCamera.transform);
-        Debug.Log("mainCameraBounds: " + m_mainCamera.pixelRect);
+        
     }
 }
