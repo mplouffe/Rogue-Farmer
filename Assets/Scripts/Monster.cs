@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
@@ -10,9 +11,13 @@ public class Monster : MonoBehaviour
     [SerializeField] private Vector3Int m_target;
     [SerializeField] private float m_intervalBetweenActions;
     [SerializeField] private float m_intervalBeforePlantAttack;
+    [SerializeField] private float m_chasingPlayerInterval;
+    [SerializeField] private float m_attackingPlayerInterval;
     [SerializeField] private SpriteRenderer m_actingBar;
     [SerializeField] private float m_playerDetectionRadius;
     [SerializeField] private int m_monsterStrength;
+    [SerializeField] private DamageFeedback m_monsterDamangeFeedback;
+    [SerializeField] private SpriteRenderer m_monsterSprite;
 
     private Action m_actionCallback;
 
@@ -23,7 +28,9 @@ public class Monster : MonoBehaviour
     private float m_actionCooldown = 0f;
     private bool m_cooldownBarActive = false;
 
-    private void Update()
+    public int MonsterHealth;
+
+    public bool UpdateMonster()
     {
         if (m_canAct)
         {
@@ -34,13 +41,15 @@ public class Monster : MonoBehaviour
                 if (adjacentPositions.Contains(playerPosition))
                 {
                     LevelManager.AttackPlayer(m_monsterStrength);
-                    TakeSilentAction(1f, null);
+                    TakeSilentAction(m_attackingPlayerInterval, null);
+                    return false;
                 }
                 else
                 {
                     m_reachedDestination = false;
-                    TakeStepTowardTarget();
-                    TakeSilentAction(1f, null);
+                    var stepTaken = TakeStepTowardTarget();
+                    TakeSilentAction(m_chasingPlayerInterval, null);
+                    return stepTaken;
                 }
             }
             else if (CheckAreaForPlant(out Vector3 plantPosition))
@@ -49,12 +58,15 @@ public class Monster : MonoBehaviour
                 transform.position = plantPosition;
                 m_reachedDestination = false;
                 TakeAction(m_intervalBeforePlantAttack, AttackPlant);
+                return true;
             }
             else if (!m_reachedDestination)
             {
-                TakeStepTowardTarget();
+                var stepTaken =  TakeStepTowardTarget();
                 TakeSilentAction(m_intervalBetweenActions, null);
+                return stepTaken;
             }
+            return false;
         }
         else
         {
@@ -81,10 +93,27 @@ public class Monster : MonoBehaviour
                     m_cooldownBarActive = false;
                 }
             }
+            return false;
         }   
     }
 
-    private void TakeStepTowardTarget()
+    public bool IsVisible() {
+
+        return m_monsterSprite.isVisible;     
+    }
+
+    public void SetTarget(Vector3Int newTarget)
+    {
+        m_target = newTarget;
+        m_reachedDestination = false;
+    }
+
+    public void TakeDamage()
+    {
+        m_monsterDamangeFeedback.TakeDamage();
+    }
+
+    private bool TakeStepTowardTarget()
     {
         var directionVector = m_target - transform.position;
         if (directionVector.magnitude < 1)
@@ -97,10 +126,12 @@ public class Monster : MonoBehaviour
             if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y) && direction.x != 0)
             {
                 MoveHorizontal(directionVector);
+                return true;
             }
             else if (Mathf.Abs(direction.x) < Mathf.Abs(direction.y) && direction.y != 0)
             {
                 MoveVertical(directionVector);
+                return true;
             }
             else if (direction.x != 0)
             {
@@ -108,13 +139,16 @@ public class Monster : MonoBehaviour
                 if (randomDirection == 0)
                 {
                     MoveHorizontal(directionVector);
+                    return true;
                 }
                 else
                 {
                     MoveVertical(directionVector);
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     private void TakeAction(float actionCooldown, Action callback)
@@ -141,7 +175,11 @@ public class Monster : MonoBehaviour
     {
         var multiplier = moveDirection.x / Mathf.Abs(moveDirection.x);
         var currentPosition = transform.position;
-        transform.position = new Vector3(currentPosition.x + (1 * multiplier), currentPosition.y, currentPosition.z);
+        var targetPosition = new Vector3(currentPosition.x + (1 * multiplier), currentPosition.y, currentPosition.z);
+        if (!MonsterManager.IsMonsterInPosition(targetPosition))
+        {
+            transform.position = targetPosition;
+        }
     }
 
     private void AttackPlant()
@@ -153,7 +191,11 @@ public class Monster : MonoBehaviour
     {
         var multiplier = moveDirection.y / Mathf.Abs(moveDirection.y);
         var currentPosition = transform.position;
-        transform.position = new Vector3(currentPosition.x, currentPosition.y + (1 * multiplier), currentPosition.z);
+        var targetPosition = new Vector3(currentPosition.x, currentPosition.y + (1 * multiplier), currentPosition.z);
+        if (!MonsterManager.IsMonsterInPosition(targetPosition))
+        {
+            transform.position = targetPosition;
+        }
     }
 
     private bool CheckAreaForPlant(out Vector3 plantPosition)
@@ -192,10 +234,5 @@ public class Monster : MonoBehaviour
             surroundingTiles.Add(new Vector3Int((int)transform.position.x, (int)transform.position.y + i, 0));
         }
         return surroundingTiles;
-    }
-
-    private void DetectArea()
-    {
-        
     }
 }

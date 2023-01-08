@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlantManager : MonoBehaviour
 {
@@ -66,6 +68,25 @@ public class PlantManager : MonoBehaviour
             return plant.CurrentStage != PlantStage.Germination && plant.CurrentStage != PlantStage.Decaying;
         }
         return false;
+    }
+
+    public static Vector3Int GetRandomPlantPosition()
+    {
+        if (m_instance == null)
+        {
+            Debug.LogError("Trying to attack a plant on a null Instance.");
+            return default;
+        }
+
+        if (m_instance.m_plants.Keys.Count > 0)
+        {
+            int randomIndex = Random.Range(0, m_instance.m_plants.Keys.Count);
+            return m_instance.m_plants.Keys.ToArray()[randomIndex];
+        }
+        else
+        {
+            return LevelManager.GetRandomPosition();
+        }
     }
 
     public static void AttackPlant(Vector3Int position)

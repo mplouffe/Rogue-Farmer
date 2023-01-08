@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -56,6 +57,12 @@ public class EquipmentManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public static Vector3Int GetRandomEquipmentPosition()
+    {
+        var randomIndex = Random.Range(0, Instance.m_equipmentByLocation.Keys.Count);
+        return Instance.m_equipmentByLocation.Keys.ToArray()[randomIndex];
     }
 
     public static Equipment CheckEquipmentAtPosition(Vector3Int position)

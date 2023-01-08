@@ -2,7 +2,10 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 public class LevelManager : MonoBehaviour
@@ -20,6 +23,9 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField]
     private FarmerController m_playerPrefab;
+
+    [SerializeField]
+    private List<PlayerInput> m_playerInputs;
 
     [SerializeField]
     private Vector3Int m_playerStartingPosition;
@@ -55,7 +61,36 @@ public class LevelManager : MonoBehaviour
 
         m_currentPlayerHealth = m_maxPlayerHealth;
         m_healthUIManager.UpdateMaxHealth(m_maxPlayerHealth);
-        m_healthUIManager.UdpateCurrentHealth(m_currentPlayerHealth);
+        m_healthUIManager.UpdateCurrentHealth(m_currentPlayerHealth);
+
+        m_playerInputs.Add(m_player.GetComponent<PlayerInput>());
+    }
+
+    private float m_durationSinceGameOver = 0;
+    private float m_gameOverMessageDuration = 6;
+    private bool m_gameOver = false;
+
+    private void Update()
+    {
+        if (m_gameOver)
+        {
+            m_durationSinceGameOver += Time.deltaTime;
+            if (m_durationSinceGameOver > m_gameOverMessageDuration)
+            {
+                SceneManager.LoadScene(0);
+            }
+        }
+    }
+
+    public static Vector2Int GetSize()
+    {
+        if (m_instance == null)
+        {
+            Debug.LogError("Trying to get size from null instance.");
+            return default;
+        }
+
+        return new Vector2Int(m_instance.m_width, m_instance.m_height);
     }
 
     public static Vector3Int GetPlayerPosition()
@@ -64,6 +99,11 @@ public class LevelManager : MonoBehaviour
         {
             Debug.LogError("Trying to retrieve player position from null instance.");
             return default;
+        }
+
+        if (m_instance.m_player == null)
+        {
+            return GetRandomPosition();
         }
 
         return Vector3Int.FloorToInt(m_instance.m_player.transform.position);
@@ -78,14 +118,89 @@ public class LevelManager : MonoBehaviour
         }
 
         m_instance.m_currentPlayerHealth -= strength;
+        if (m_instance.m_player != null)
+        {
+            m_instance.m_player.TakeDamage();
+        }
+
         if (m_instance.m_currentPlayerHealth < 0)
         {
             // Dead player
+            ChangeInputMap(InputMap.Dead);
+            Toaster.PopToast("You have been killed... Game Over...", 5);
             m_instance.m_currentPlayerHealth = 0;
+            Destroy(m_instance.m_player.gameObject);
+            m_instance.m_player = null;
+            m_instance.m_gameOver = true;
+            m_instance.m_durationSinceGameOver = 0;
         }
 
-        m_instance.m_healthUIManager.UdpateCurrentHealth(m_instance.m_currentPlayerHealth);
+        m_instance.m_healthUIManager.UpdateCurrentHealth(m_instance.m_currentPlayerHealth);
     }
+
+    public static void HealPlayer(int healValue)
+    {
+        if (m_instance == null)
+        {
+            Debug.LogError("Trying to retrieve player position from null instance.");
+            return;
+        }
+
+        m_instance.m_currentPlayerHealth = Mathf.Min(m_instance.m_maxPlayerHealth, m_instance.m_currentPlayerHealth + healValue);
+        m_instance.m_healthUIManager.UpdateCurrentHealth(m_instance.m_currentPlayerHealth);
+    }
+
+    public static void ChangeInputMap(InputMap newInputMap)
+    {
+        if (m_instance == null)
+        {
+            Debug.LogError("Trying to retrieve player position from null instance.");
+            return;
+        }
+
+        Debug.Log("changing input map");
+        switch (newInputMap)
+        {
+            case InputMap.Player:
+                foreach(var playerInput in m_instance.m_playerInputs)
+                {
+                    playerInput.SwitchCurrentActionMap("Player");
+                }
+                break;
+            case InputMap.Inventory:
+                foreach (var playerInput in m_instance.m_playerInputs)
+                {
+                    playerInput.SwitchCurrentActionMap("Inventory");
+                }
+                break;
+            case InputMap.Dead:
+                foreach (var playerInput in m_instance.m_playerInputs)
+                {
+                    playerInput.SwitchCurrentActionMap("Dead");
+                }
+                break;
+        }
+        
+    }
+
+    public static Vector3Int GetRandomPosition()
+    {
+        int randomX = Random.Range(0, m_instance.m_width);
+        int randomY = Random.Range(0, m_instance.m_height);
+        return new Vector3Int(randomX, randomY, 0);
+    }
+
+    public static bool PlayerNeedsHealing()
+    {
+        return m_instance.m_currentPlayerHealth < m_instance.m_maxPlayerHealth;
+    }
+}
+
+public enum InputMap
+{
+    Player,
+    Inventory,
+    Dead
 }
 
 public enum TileTypes

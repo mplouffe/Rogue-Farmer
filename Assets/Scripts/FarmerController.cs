@@ -7,8 +7,9 @@ using UnityEngine.UIElements;
 
 public class FarmerController : MonoBehaviour
 {
-    [SerializeField] private int m_grabCooldownDuration;
-    [SerializeField] private int m_dropCooldownDuration;
+    [SerializeField] private float m_grabCooldownDuration;
+    [SerializeField] private float m_dropCooldownDuration;
+    [SerializeField] private float m_attackCooldownDuration;
 
     [SerializeField] private SpriteRenderer m_actingBar;
     [SerializeField] private PlayerInput m_playerInput;
@@ -20,6 +21,9 @@ public class FarmerController : MonoBehaviour
     private float m_timeSinceLastAction = 0f;
     private float m_actionCooldown = 0f;
     private Action m_actionCallback = null;
+
+    [SerializeField] private int m_farmerStrength;
+    [SerializeField] private DamageFeedback m_farmerDamageFeedback;
 
     private const float k_actingBarMax = 0.7f;
 
@@ -56,6 +60,11 @@ public class FarmerController : MonoBehaviour
         m_actingBar.transform.localScale = new Vector3(k_actingBarMax, 0.1f, 1);
     }
 
+    public void TakeDamage()
+    {
+        m_farmerDamageFeedback.TakeDamage();
+    }
+
     public void MoveFarmer(InputAction.CallbackContext context)
     {
         if (context.performed && m_freeToAct)
@@ -81,9 +90,18 @@ public class FarmerController : MonoBehaviour
             }
 
             var newPosition = transform.position + new Vector3(moveInterval.x, moveInterval.y, 0);
-            if (LevelBounds.IsWithinLevelBounds(newPosition))
+
+            if (MonsterManager.IsMonsterInPosition(newPosition))
             {
-                transform.position = newPosition;
+                MonsterManager.AttackMonsterInPosition(newPosition, m_farmerStrength);
+                TakeAction(m_attackCooldownDuration, null);
+            }
+            else
+            {
+                if (LevelBounds.IsWithinLevelBounds(newPosition))
+                {
+                    transform.position = newPosition;
+                }
             }
         }
     }
@@ -125,9 +143,14 @@ public class FarmerController : MonoBehaviour
                             break;
                     }
                     EquipmentManager.GrabEquipmentAtPosition(position);
+                    Toaster.PopToast("You grabbed the " + equipment.EquipmentId);
                 });
 
-            }          
+            }
+            else
+            {
+                Toaster.PopToast("You don't have enough free hands to carry that. Drop what you're carrying to pick that up.");
+            }
         }
     }
 
@@ -140,17 +163,20 @@ public class FarmerController : MonoBehaviour
             {
                 if (EquipmentManager.DropEquipmentAtPosition(position, RightHand))
                 {
+                    Toaster.PopToast("You dropped the " + RightHand.EquipmentId);
                     if (RightHand.carryHands == 2)
                     {
                         LeftHand = null;
                     }
                     RightHand = null;
+
                 }
             }
             else if (LeftHand != null)
             {
                 if (EquipmentManager.DropEquipmentAtPosition(position, LeftHand))
                 {
+                    Toaster.PopToast("You dropped the " + LeftHand.EquipmentId);
                     LeftHand = null;
                 }
             }
@@ -165,14 +191,14 @@ public class FarmerController : MonoBehaviour
             {
                 if (RightHand.useHands == 2 && (LeftHand != RightHand && LeftHand != null))
                 {
-                    Debug.Log("Cannot perform action. Need additional hand.");
+                    Toaster.PopToast("You need two hands for that.");
                     return;
                 }
                 TakeAction(RightHand.toolCooldown, () =>
                 {
                     Vector3Int position = Vector3Int.FloorToInt(transform.position);
                     TileManager.UseToolOnTile(position, RightHand.EquipmentId);
-                });            
+                });
             }
             else if (LeftHand != null)
             {
@@ -189,10 +215,9 @@ public class FarmerController : MonoBehaviour
     {
         if (context.performed && m_freeToAct)
         {
-            Debug.Log("Inventory triggered in player side");
             if (InventoryManager.ActiateInventoryScreen())
             {
-                m_playerInput.SwitchCurrentActionMap("Inventory");
+                LevelManager.ChangeInputMap(InputMap.Inventory);
             }
         }
     }

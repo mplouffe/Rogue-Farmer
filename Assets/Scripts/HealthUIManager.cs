@@ -11,7 +11,7 @@ public class HealthUIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI m_maxPlayerHealthLabel;
 
-    public void UdpateCurrentHealth(int currentPlayerHealth)
+    public void UpdateCurrentHealth(int currentPlayerHealth)
     {
         m_currentPlayerHealthLabel.text = currentPlayerHealth.ToString();
     }

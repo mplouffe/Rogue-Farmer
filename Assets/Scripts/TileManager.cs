@@ -173,6 +173,7 @@ public class TileManager : MonoBehaviour
                         tileUpdated = true;
                         InventoryManager.AddFruit(plantYield);
                     }
+                    Toaster.PopToast("It's too early to harvest.");
                 }
                 break;
         }
@@ -197,6 +198,15 @@ public class TileManager : MonoBehaviour
 
         Instance.m_levelDayTilemap.color = isNight ? k_invisible : k_visibile;
         Instance.m_levelNightTilemap.color = isNight ? k_visibile : k_invisible;
+
+        if (isNight)
+        {
+            Toaster.PopToast("Oh what a horrible night to have a curse...");
+        }
+        else
+        {
+            Toaster.PopToast("The morning sun has vanquished the horrible night...");
+        }
     }
 
     public static void PlantDiedOnTile(Vector3Int tilePosition)

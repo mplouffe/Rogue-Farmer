@@ -27,6 +27,17 @@ public class Clock : MonoBehaviour
         return Instance.m_isCurrentlyNight;
     }
 
+    public static int NightNumber()
+    {
+        if (Instance == null)
+        {
+            Debug.LogError("Trying to do night check on uninitalized Clock instance.");
+            return 0;
+        }
+
+        return Instance.m_nightCount;
+    }
+
     [SerializeField]
     private TextMeshProUGUI m_timeLabel;
 
@@ -60,6 +71,8 @@ public class Clock : MonoBehaviour
     private const string k_moringPeriodLabel = "AM";
 
     protected bool m_isCurrentlyNight = false;
+
+    private int m_nightCount = 0;
 
     public void Awake()
     {
@@ -157,6 +170,7 @@ public class Clock : MonoBehaviour
         {
             TileManager.SwapTimeOfDay(isCurrentlyNight);
             m_isCurrentlyNight = isCurrentlyNight;
+            m_nightCount += isCurrentlyNight ? 1 : 0;
         }
     }
 }

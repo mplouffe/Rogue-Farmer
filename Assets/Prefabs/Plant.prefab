@@ -57,7 +57,7 @@ MonoBehaviour:
   RipeningSprite: {fileID: 21300000, guid: 46eb530aa76b87c4ba57ace96982af84, type: 3}
   DecayingDuration: 5
   DecayingSprite: {fileID: 21300000, guid: acd31280bf99d6c4298a0bdd58611ffd, type: 3}
-  FruitYield: 5
+  FruitYield: 3
   SpriteRenderer: {fileID: 8569442180016790363}
 --- !u!1 &5545108449497936226
 GameObject:

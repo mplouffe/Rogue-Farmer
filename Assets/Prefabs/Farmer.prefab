@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5676878476174382543}
   - component: {fileID: 5676878476174382540}
   - component: {fileID: 5676878476174382541}
+  - component: {fileID: 4646513629859088249}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -102,6 +103,22 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &4646513629859088249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5676878476174382542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41c5e0bb7a8faae44b0f9a44c5db8066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_characterSpriteRenderer: {fileID: 0}
+  m_totalBlinkDuration: 0
+  m_blinkInterval: 0
+  m_blinkColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &5676878476972471769
 GameObject:
   m_ObjectHideFlags: 0
@@ -113,6 +130,7 @@ GameObject:
   - component: {fileID: 5676878476972471774}
   - component: {fileID: 5676878476972471775}
   - component: {fileID: 5676878476972471772}
+  - component: {fileID: 4492829911393414923}
   m_Layer: 0
   m_Name: Farmer
   m_TagString: Untagged
@@ -150,8 +168,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_grabCooldownDuration: 1
   m_dropCooldownDuration: 0
+  m_attackCooldownDuration: 0.5
   m_actingBar: {fileID: 5676878477799224346}
   m_playerInput: {fileID: 5676878476972471772}
+  m_farmerStrength: 5
+  m_farmerDamageFeedback: {fileID: 4492829911393414923}
 --- !u!114 &5676878476972471772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,19 +331,7 @@ MonoBehaviour:
     m_ActionId: 530aa6c5-63e0-4d21-9d05-2bd902164abb
     m_ActionName: Inventory/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
   - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: InventoryWidget, Assembly-CSharp
-        m_MethodName: Inventory
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_ActionId: 3367f032-e228-4ce6-94cd-58b8f4751134
     m_ActionName: Inventory/Inventory[/Keyboard/i]
   - m_PersistentCalls:
@@ -338,6 +347,22 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &4492829911393414923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5676878476972471769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41c5e0bb7a8faae44b0f9a44c5db8066, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_characterSpriteRenderer: {fileID: 5676878476174382540}
+  m_totalBlinkDuration: 1
+  m_blinkInterval: 0.2
+  m_blinkColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &5676878477799224356
 GameObject:
   m_ObjectHideFlags: 0
