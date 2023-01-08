@@ -59,10 +59,25 @@ public class EquipmentManager : MonoBehaviour
         return null;
     }
 
+    public static bool HasEquipment(EquipmentId id)
+    {
+        return Instance.m_equipmentDictionary.ContainsKey(id);
+    }
+
     public static Vector3Int GetRandomEquipmentPosition()
     {
         var randomIndex = Random.Range(0, Instance.m_equipmentByLocation.Keys.Count);
         return Instance.m_equipmentByLocation.Keys.ToArray()[randomIndex];
+    }
+
+    public static void EquipmentAdded(Vector3Int position, Equipment newEquipment)
+    {
+        Instance.m_equipmentByLocation.Add(position, newEquipment.EquipmentId);
+        if (!Instance.m_equipmentDictionary.ContainsKey(newEquipment.EquipmentId))
+        {
+            Instance.m_equipmentDictionary.Add(newEquipment.EquipmentId, newEquipment);
+        }
+        Instance.m_equipmentLocations.Add(newEquipment.EquipmentId, position);
     }
 
     public static Equipment CheckEquipmentAtPosition(Vector3Int position)
@@ -130,5 +145,6 @@ public enum EquipmentId
     PruningSheers,
     DeSeeder,
     Scythe,
-    BagOfSeeds
+    BagOfSeeds,
+    DungeonSeed
 }

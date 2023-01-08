@@ -12,7 +12,13 @@ public class PlantManager : MonoBehaviour
     [SerializeField]
     private Plant m_plant;
 
+    [SerializeField]
+    private Plant m_dungeon;
+
     private Dictionary<Vector3Int, Plant> m_plants = new Dictionary<Vector3Int, Plant>(40);
+
+    private (Vector3Int position, Plant dungeon) m_dungeonPlant;
+    private bool m_dungeonPlanted = false;
 
     private void Awake()
     {
@@ -22,6 +28,32 @@ public class PlantManager : MonoBehaviour
             Destroy(m_instance);
         }
         m_instance = this;
+    }
+
+    public static bool ReadyToEnterDungeon(Vector3Int position)
+    {
+        if (m_instance.m_dungeonPlanted)
+        {
+            if (position == m_instance.m_dungeonPlant.position)
+            {
+                if (m_instance.m_dungeonPlant.dungeon.CurrentStage == PlantStage.Decaying)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void PlantDungeon(Vector3Int position)
+    {
+        if (m_instance == null)
+        {
+            Debug.LogError("Trying to plant seed to a null instance.");
+            return;
+        }
+        m_instance.m_dungeonPlant = (position, Instantiate(m_instance.m_dungeon, position, Quaternion.identity));
+        m_instance.m_dungeonPlanted = true;
     }
 
     public static void PlantSeed(Vector3Int position)
@@ -107,6 +139,61 @@ public class PlantManager : MonoBehaviour
     private void FixedUpdate()
     {
         GrowPlants();
+        GrowDungeons();
+    }
+
+    private void GrowDungeons()
+    {
+        if (m_dungeonPlanted)
+        {
+            var plant = m_dungeonPlant.dungeon;
+            plant.CurrentStageDuration += Time.fixedDeltaTime;
+            switch(plant.CurrentStage)
+            {
+                case PlantStage.Germination:
+                    if (plant.CurrentStageDuration > plant.GerminationDuration)
+                    {
+                        plant.CurrentStage = PlantStage.Seeding;
+                        plant.SpriteRenderer.sprite = plant.SeedingSprite;
+                        plant.CurrentStageDuration = 0;
+                    }
+                    break;
+                case PlantStage.Seeding:
+                    if (plant.CurrentStageDuration > plant.SeedingDuration)
+                    {
+                        plant.CurrentStage = PlantStage.Budding;
+                        plant.SpriteRenderer.sprite = plant.BuddingSprite;
+                        plant.CurrentStageDuration = 0;
+                    }
+                    break;
+                case PlantStage.Budding:
+                    if (plant.CurrentStageDuration > plant.BuddingDuration)
+                    {
+                        plant.CurrentStage = PlantStage.Flowering;
+                        plant.SpriteRenderer.sprite = plant.FloweringSprite;
+                        plant.CurrentStageDuration = 0;
+                    }
+                    break;
+                case PlantStage.Flowering:
+                    if (plant.CurrentStageDuration > plant.FloweringDuration)
+                    {
+                        plant.CurrentStage = PlantStage.Ripening;
+                        plant.SpriteRenderer.sprite = plant.RipeningSprite;
+                        plant.CurrentStageDuration = 0;
+                    }
+                    break;
+                case PlantStage.Ripening:
+                    if (plant.CurrentStageDuration > plant.RipeningDuration)
+                    {
+                        plant.CurrentStage = PlantStage.Decaying;
+                        plant.SpriteRenderer.sprite = plant.DecayingSprite;
+                        plant.CurrentStageDuration = 0;
+                    }
+                    break;
+                case PlantStage.Decaying:
+                    break;
+            }
+        }
     }
 
     private void RemovePlant(Vector3Int positionOfPlantToRemove)

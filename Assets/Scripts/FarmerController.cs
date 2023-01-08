@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class FarmerController : MonoBehaviour
@@ -17,9 +18,10 @@ public class FarmerController : MonoBehaviour
     private Equipment RightHand = null;
     private Equipment LeftHand = null;
 
-    private bool m_freeToAct = true;
-    private float m_timeSinceLastAction = 0f;
+    private bool m_canAct = true;
+    private float m_durationSinceLastAction = 0f;
     private float m_actionCooldown = 0f;
+    private bool m_cooldownBarActive = false;
     private Action m_actionCallback = null;
 
     [SerializeField] private int m_farmerStrength;
@@ -29,22 +31,29 @@ public class FarmerController : MonoBehaviour
 
     private void Update()
     {
-        if (!m_freeToAct)
+        if (!m_canAct)
         {
-            m_timeSinceLastAction += Time.deltaTime;
-            var inversePercentComplete = 1 - (m_timeSinceLastAction / m_actionCooldown);
-            var barScaleValue = inversePercentComplete * k_actingBarMax;
-            m_actingBar.transform.localScale = new Vector3(barScaleValue, 0.1f, 1);
-            
-            if (m_timeSinceLastAction > m_actionCooldown)
+            m_durationSinceLastAction += Time.deltaTime;
+            if (m_cooldownBarActive)
             {
-                m_freeToAct = true;
-                m_timeSinceLastAction = 0;
-                m_actionCooldown = 0;
-                m_actingBar.color = new Color(1, 1, 1, 0);
+                var inversePercentComplete = 1 - (m_durationSinceLastAction / m_actionCooldown);
+                var barScaleValue = inversePercentComplete * k_actingBarMax;
+                m_actingBar.transform.localScale = new Vector3(barScaleValue, 0.1f, 1);
+            }
+
+            if (m_durationSinceLastAction > m_actionCooldown)
+            {
+                m_durationSinceLastAction = 0;
+                m_canAct = true;
                 if (m_actionCallback != null)
                 {
                     m_actionCallback.Invoke();
+                }
+
+                if (m_cooldownBarActive)
+                {
+                    m_actingBar.color = new Color(1, 1, 1, 0);
+                    m_cooldownBarActive = false;
                 }
             }
         }
@@ -52,12 +61,22 @@ public class FarmerController : MonoBehaviour
 
     private void TakeAction(float actionCooldown, Action callback)
     {
-        m_freeToAct = false;
-        m_timeSinceLastAction = 0;
+        m_canAct = false;
+        m_durationSinceLastAction = 0;
         m_actionCooldown = actionCooldown;
         m_actionCallback = callback;
         m_actingBar.color = new Color(1, 1, 1, 1);
         m_actingBar.transform.localScale = new Vector3(k_actingBarMax, 0.1f, 1);
+        m_cooldownBarActive = true;
+    }
+
+    private void TakeSilentAction(float actionCooldown, Action callback)
+    {
+        m_canAct = false;
+        m_durationSinceLastAction = 0;
+        m_actionCooldown = actionCooldown;
+        m_actionCallback = callback;
+        m_cooldownBarActive = false;
     }
 
     public void TakeDamage()
@@ -67,26 +86,42 @@ public class FarmerController : MonoBehaviour
 
     public void MoveFarmer(InputAction.CallbackContext context)
     {
-        if (context.performed && m_freeToAct)
+        if (context.performed && m_canAct)
         {
             var moveValue = context.action.ReadValue<Vector2>();
             var moveInterval = new Vector3();
-            if (moveValue.x < 0)
+            if (Math.Abs(moveValue.x) > Math.Abs(moveValue.y))
             {
-                moveInterval.x = -1;
+                if (moveValue.x < 0)
+                {
+                    moveInterval.x = -1;
+                }
+                else if (moveValue.x > 0)
+                {
+                    moveInterval.x = 1;
+                }
             }
-            else if (moveValue.x > 0)
+            else if (Math.Abs(moveValue.y) > Math.Abs(moveValue.x))
             {
-                moveInterval.x = 1;
+                if (moveValue.y < 0)
+                {
+                    moveInterval.y = -1;
+                }
+                else if (moveValue.y > 0)
+                {
+                    moveInterval.y = 1;
+                }
             }
-
-            if (moveValue.y < 0)
+            else if (Math.Abs(moveValue.x) > 0)
             {
-                moveInterval.y = -1;
-            }
-            else if (moveValue.y > 0)
-            {
-                moveInterval.y = 1;
+                if (moveValue.x < 0)
+                {
+                    moveInterval.x = -1;
+                }
+                else if (moveValue.x > 0)
+                {
+                    moveInterval.x = 1;
+                }
             }
 
             var newPosition = transform.position + new Vector3(moveInterval.x, moveInterval.y, 0);
@@ -94,7 +129,7 @@ public class FarmerController : MonoBehaviour
             if (MonsterManager.IsMonsterInPosition(newPosition))
             {
                 MonsterManager.AttackMonsterInPosition(newPosition, m_farmerStrength);
-                TakeAction(m_attackCooldownDuration, null);
+                TakeSilentAction(m_attackCooldownDuration, null);
             }
             else
             {
@@ -102,13 +137,14 @@ public class FarmerController : MonoBehaviour
                 {
                     transform.position = newPosition;
                 }
+                TakeSilentAction(0.2f, null);
             }
         }
     }
 
     public void Grab(InputAction.CallbackContext context)
     {
-        if (context.performed && m_freeToAct)
+        if (context.performed && m_canAct)
         {
             Vector3Int position = Vector3Int.FloorToInt(transform.position);
             var equipment = EquipmentManager.CheckEquipmentAtPosition(position);
@@ -123,28 +159,25 @@ public class FarmerController : MonoBehaviour
 
             if (totalHandPoints >= equipment.carryHands)
             {
-                TakeAction(m_grabCooldownDuration, () =>
+                switch (equipment.carryHands)
                 {
-                    switch (equipment.carryHands)
-                    {
-                        case 2:
+                    case 2:
+                        RightHand = equipment;
+                        LeftHand = equipment;
+                        break;
+                    case 1:
+                        if (RightHand == null)
+                        {
                             RightHand = equipment;
+                        }
+                        else
+                        {
                             LeftHand = equipment;
-                            break;
-                        case 1:
-                            if (RightHand == null)
-                            {
-                                RightHand = equipment;
-                            }
-                            else
-                            {
-                                LeftHand = equipment;
-                            }
-                            break;
-                    }
-                    EquipmentManager.GrabEquipmentAtPosition(position);
-                    Toaster.PopToast("You grabbed the " + equipment.EquipmentId);
-                });
+                        }
+                        break;
+                }
+                EquipmentManager.GrabEquipmentAtPosition(position);
+                Toaster.PopToast("You grabbed the " + equipment.EquipmentId);
 
             }
             else
@@ -156,7 +189,7 @@ public class FarmerController : MonoBehaviour
 
     public void Drop(InputAction.CallbackContext context)
     {
-        if (context.performed && m_freeToAct)
+        if (context.performed && m_canAct)
         {
             Vector3Int position = Vector3Int.FloorToInt(transform.position);
             if (RightHand != null)
@@ -185,35 +218,51 @@ public class FarmerController : MonoBehaviour
 
     public void UseTool(InputAction.CallbackContext context)
     {
-        if (context.performed && m_freeToAct)
+        if (context.performed && m_canAct)
         {
-            if (RightHand != null)
+            if (PlantManager.ReadyToEnterDungeon(Vector3Int.FloorToInt(transform.position)))
             {
-                if (RightHand.useHands == 2 && (LeftHand != RightHand && LeftHand != null))
+                Toaster.PopToast("Are you prepared to enter the dungeon?", 4);
+                LevelManager.ChangeInputMap(InputMap.Dead);
+                TakeAction(6, () =>
                 {
-                    Toaster.PopToast("You need two hands for that.");
-                    return;
-                }
-                TakeAction(RightHand.toolCooldown, () =>
-                {
-                    Vector3Int position = Vector3Int.FloorToInt(transform.position);
-                    TileManager.UseToolOnTile(position, RightHand.EquipmentId);
+                    SceneManager.LoadScene(2);
                 });
             }
-            else if (LeftHand != null)
+            else
             {
-                TakeAction(LeftHand.toolCooldown, () =>
+                if (RightHand != null)
                 {
-                    Vector3Int position = Vector3Int.FloorToInt(transform.position);
-                    TileManager.UseToolOnTile(position, LeftHand.EquipmentId);
-                });
+                    if (RightHand.useHands == 2 && (LeftHand != RightHand && LeftHand != null))
+                    {
+                        Toaster.PopToast("You need two hands for that.");
+                        return;
+                    }
+                    TakeAction(RightHand.toolCooldown, () =>
+                    {
+                        if (RightHand.EquipmentId == EquipmentId.DungeonSeed)
+                        {
+                            RightHand = null;
+                        }
+                        Vector3Int position = Vector3Int.FloorToInt(transform.position);
+                        TileManager.UseToolOnTile(position, RightHand.EquipmentId);
+                    });
+                }
+                else if (LeftHand != null)
+                {
+                    TakeAction(LeftHand.toolCooldown, () =>
+                    {
+                        Vector3Int position = Vector3Int.FloorToInt(transform.position);
+                        TileManager.UseToolOnTile(position, LeftHand.EquipmentId);
+                    });
+                }
             }
         }
     }
 
     public void Inventory(InputAction.CallbackContext context)
     {
-        if (context.performed && m_freeToAct)
+        if (context.performed && m_canAct)
         {
             if (InventoryManager.ActiateInventoryScreen())
             {

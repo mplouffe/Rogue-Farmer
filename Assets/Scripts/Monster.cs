@@ -27,9 +27,10 @@ public class Monster : MonoBehaviour
     private const float k_actingBarMax = 0.7f;
     private float m_actionCooldown = 0f;
     private bool m_cooldownBarActive = false;
+    private int m_idleActions = 0;
 
     public int MonsterHealth;
-
+    
     public bool UpdateMonster()
     {
         if (m_canAct)
@@ -66,7 +67,34 @@ public class Monster : MonoBehaviour
                 TakeSilentAction(m_intervalBetweenActions, null);
                 return stepTaken;
             }
-            return false;
+            else
+            {
+                TakeSilentAction(m_intervalBetweenActions, null);
+                m_idleActions++;
+                if (m_idleActions > 10)
+                {
+                    int targetRandomizer = Random.Range(0, 10);
+                    switch (targetRandomizer)
+                    {
+                        case 1:
+                        case 2:
+                        case 3:
+                            SetTarget(LevelManager.GetPlayerPosition());
+                            break;
+                        case 4:
+                        case 5:
+                        case 6:
+                            SetTarget(PlantManager.GetRandomPlantPosition());
+                            break;
+                        case 9:
+                            SetTarget(EquipmentManager.GetRandomEquipmentPosition());
+                            break;
+                    }
+                    m_idleActions = 0;
+                    m_reachedDestination = false;
+                }
+                return false;
+            }
         }
         else
         {

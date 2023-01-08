@@ -18,7 +18,7 @@ public class TimeManager : MonoBehaviour
 
     private void Start()
     {
-        m_hourChunk = 4;
+        m_hourChunk = 10;
         UpdateClockText();
     }
 

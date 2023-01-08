@@ -55,11 +55,29 @@ public class TileManager : MonoBehaviour
         }
 
         Instance.m_tileData = new TileData[mapSize.x, mapSize.y];
+        var halfWidth = mapSize.x / 2;
+        var halfHeight = mapSize.y / 2;
+
+
         for (int i = 0, c = mapSize.x; i < c; i++)
         {
             for (int j = 0, d = mapSize.y; j < d; j++)
             {
-                Instance.m_tileData[i, j] = GetRandomTileData();
+                // carve out an area for  the starting position
+                if ((i > halfWidth - 4 && i < halfWidth + 4) && (j > halfHeight - 5 && j < halfHeight + 2))
+                {
+                    Instance.m_tileData[i, j] = new TileData()
+                    {
+                        TileType = TileType.Dirt,
+                        DayTile = Instance.m_tileAssets[2].DayTile,
+                        NightTile = Instance.m_tileAssets[2].NightTile
+                    };
+                }
+                else
+                {
+                    Instance.m_tileData[i, j] = GetRandomTileData();
+                }
+
                 Instance.m_levelDayTilemap.SetTile(new Vector3Int(i, j, 0), Instance.m_tileData[i, j].DayTile);
                 Instance.m_levelNightTilemap.SetTile(new Vector3Int(i, j, 0), Instance.m_tileData[i, j].NightTile);
             }
@@ -125,6 +143,14 @@ public class TileManager : MonoBehaviour
                     PlantManager.PlantSeed(tilePosition);
                     tileUpdated = true;
                 }
+                else if (tool == EquipmentId.DungeonSeed)
+                {
+                    tileData.TileType = TileType.Crop;
+                    tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Crop].DayTile;
+                    tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Crop].NightTile;
+                    PlantManager.PlantDungeon(tilePosition);
+                    tileUpdated = true;
+                }
                 break;
             case TileType.Dirt:
                 if (tool == EquipmentId.Hoe)
@@ -173,7 +199,10 @@ public class TileManager : MonoBehaviour
                         tileUpdated = true;
                         InventoryManager.AddFruit(plantYield);
                     }
-                    Toaster.PopToast("It's too early to harvest.");
+                    else
+                    {
+                        Toaster.PopToast("It's too early to harvest.");
+                    }
                 }
                 break;
         }

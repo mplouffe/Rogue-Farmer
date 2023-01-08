@@ -10,8 +10,17 @@ public class MonsterManager : MonoBehaviour
     private Dictionary<Vector3, Monster> m_monsterDictionary;
 
     [SerializeField] private Monster m_monsterPrefab;
-    [SerializeField] private Vector3Int m_monsterStartingPosition;
+    private Vector3Int m_monsterStartingPosition;
     [SerializeField] private int m_monsterBaseRate;
+
+    [SerializeField]
+    private Equipment m_dungeonSeed;
+
+    [SerializeField]
+    private GameObject m_fakeDrop;
+
+    //[SerializeField]
+    //private RoughEffect m_explosionEffect;
 
     private
 
@@ -23,10 +32,10 @@ public class MonsterManager : MonoBehaviour
             Destroy(m_instance);
         }
         m_instance = this;
-        m_monsterDictionary = new Dictionary<Vector3, Monster>(20);
+        m_monsterDictionary = new Dictionary<Vector3, Monster>(30);
 
-        var firstMonster = Instantiate(m_monsterPrefab, m_monsterStartingPosition, Quaternion.identity);
-        m_monsterDictionary.Add(m_monsterStartingPosition, firstMonster);
+        //var firstMonster = Instantiate(m_monsterPrefab, m_monsterStartingPosition, Quaternion.identity);
+        //m_monsterDictionary.Add(m_monsterStartingPosition, firstMonster);
     }
 
     private void Update()
@@ -182,6 +191,35 @@ public class MonsterManager : MonoBehaviour
             {
                 m_instance.m_monsterDictionary.Remove(position);
                 Destroy(monster.gameObject);
+
+                int dropRandom = Random.Range(0, 20);
+                switch (dropRandom)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                        Instantiate(m_instance.m_fakeDrop, position, Quaternion.identity);
+                        break;
+                    case 19:
+                        if (!EquipmentManager.HasEquipment(EquipmentId.DungeonSeed))
+                        {
+                            Equipment dungeonSeed = Instantiate(m_instance.m_dungeonSeed, position, Quaternion.identity);
+                            EquipmentManager.EquipmentAdded(Vector3Int.FloorToInt(position), dungeonSeed);
+                        }
+                        break;
+                }
             }
         }
     }
