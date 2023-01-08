@@ -9,4 +9,7 @@ public class Equipment : MonoBehaviour
     public int carryHands;
     public int useHands;
     public int toolCooldown;
+    public string toastMessage;
+    public bool firstTimeEquipping = true;
+
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class FarmerController : MonoBehaviour
 {
@@ -13,7 +14,6 @@ public class FarmerController : MonoBehaviour
     [SerializeField] private float m_attackCooldownDuration;
 
     [SerializeField] private SpriteRenderer m_actingBar;
-    [SerializeField] private PlayerInput m_playerInput;
 
     private Equipment RightHand = null;
     private Equipment LeftHand = null;
@@ -177,8 +177,24 @@ public class FarmerController : MonoBehaviour
                         break;
                 }
                 EquipmentManager.GrabEquipmentAtPosition(position);
-                Toaster.PopToast("You grabbed the " + equipment.EquipmentId);
+                if (equipment.firstTimeEquipping)
+                {
+                    equipment.firstTimeEquipping = false;
+                    Toaster.PopToast(equipment.toastMessage);
+                }
+                else
+                {
+                    float toastMessage = Random.Range(0f, 1f);
+                    if (toastMessage < 0.8f)
+                    {
+                        Toaster.PopToast("You grabbed the " + equipment.EquipmentId);
+                    }
+                    else
+                    {
+                        Toaster.PopToast(equipment.toastMessage);
+                    }
 
+                }
             }
             else
             {
@@ -240,12 +256,12 @@ public class FarmerController : MonoBehaviour
                     }
                     TakeAction(RightHand.toolCooldown, () =>
                     {
+                        Vector3Int position = Vector3Int.FloorToInt(transform.position);
+                        TileManager.UseToolOnTile(position, RightHand.EquipmentId);
                         if (RightHand.EquipmentId == EquipmentId.DungeonSeed)
                         {
                             RightHand = null;
                         }
-                        Vector3Int position = Vector3Int.FloorToInt(transform.position);
-                        TileManager.UseToolOnTile(position, RightHand.EquipmentId);
                     });
                 }
                 else if (LeftHand != null)

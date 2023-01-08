@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 1
   useHands: 1
   toolCooldown: 5
+  toastMessage: A dungeon seed? What will this grow???
+  firstTimeEquipping: 1

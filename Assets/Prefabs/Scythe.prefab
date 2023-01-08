@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 1
   useHands: 2
   toolCooldown: 4
+  toastMessage: Use the Scythe to harvest ripe plants.
+  firstTimeEquipping: 1

@@ -427,7 +427,7 @@
                 {
                     "name": "",
                     "id": "fbcbf0ee-71c4-4a2d-bb0c-6d4dfb4a42ac",
-                    "path": "<Keyboard>/i",
+                    "path": "<Keyboard>/t",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
@@ -485,7 +485,7 @@
                     "path": "<Gamepad>/start",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false

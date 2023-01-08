@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 1
   useHands: 2
   toolCooldown: 3
+  toastMessage: The hoe can be used to till Dirt into Soil.
+  firstTimeEquipping: 1

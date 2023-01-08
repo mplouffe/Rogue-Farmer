@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 1
   useHands: 2
   toolCooldown: 4
+  toastMessage: Use the Shovel to remove shrubs and convert Scrub land to Dirt.
+  firstTimeEquipping: 1

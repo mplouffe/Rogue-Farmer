@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 2
   useHands: 2
   toolCooldown: 10
+  toastMessage: The Pick Axe can breakdown rocks into Dirt.
+  firstTimeEquipping: 1

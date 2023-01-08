@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 2
   useHands: 2
   toolCooldown: 5
+  toastMessage: Plant seeds in freshly stirred soil.
+  firstTimeEquipping: 1

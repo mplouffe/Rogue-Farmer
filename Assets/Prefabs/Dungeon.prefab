@@ -47,11 +47,11 @@ MonoBehaviour:
   GerminationDuration: 5
   CurrentStage: 0
   CurrentStageDuration: 0
-  SeedingDuration: 5
+  SeedingDuration: 10
   SeedingSprite: {fileID: 21300000, guid: fd5627dfaaa0cfd40980def7fc05c1be, type: 3}
-  BuddingDuration: 5
+  BuddingDuration: 15
   BuddingSprite: {fileID: 21300000, guid: 4be208a5e7aa0cc4d8b6ea90b4a00b85, type: 3}
-  FloweringDuration: 5
+  FloweringDuration: 20
   FloweringSprite: {fileID: 21300000, guid: dfea7c321d086114d96ceded0ba4f129, type: 3}
   RipeningDuration: 5
   RipeningSprite: {fileID: 21300000, guid: 9f77f4fcc20db73489746c384df459ae, type: 3}

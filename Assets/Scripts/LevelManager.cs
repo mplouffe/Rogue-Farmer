@@ -1,8 +1,5 @@
 using Cinemachine;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -39,6 +36,16 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private CinemachineVirtualCamera m_virtualCamera;
 
+    public void MoveFarmer(InputAction.CallbackContext context) => m_player.MoveFarmer(context);
+
+    public void Grab(InputAction.CallbackContext context) => m_player.Grab(context);
+
+    public void Drop(InputAction.CallbackContext context) => m_player.Drop(context);
+
+    public void UseTool(InputAction.CallbackContext context) => m_player.UseTool(context);
+
+    public void Inventory(InputAction.CallbackContext context) => m_player.Inventory(context);
+
     private void Start()
     {
         if (m_instance != null && m_instance != this)
@@ -62,8 +69,6 @@ public class LevelManager : MonoBehaviour
         m_currentPlayerHealth = m_maxPlayerHealth;
         m_healthUIManager.UpdateMaxHealth(m_maxPlayerHealth);
         m_healthUIManager.UpdateCurrentHealth(m_currentPlayerHealth);
-
-        m_playerInputs.Add(m_player.GetComponent<PlayerInput>());
     }
 
     private float m_durationSinceGameOver = 0;
@@ -123,7 +128,7 @@ public class LevelManager : MonoBehaviour
             m_instance.m_player.TakeDamage();
         }
 
-        if (m_instance.m_currentPlayerHealth < 0)
+        if (m_instance.m_currentPlayerHealth <= 0)
         {
             // Dead player
             ChangeInputMap(InputMap.Dead);
@@ -157,21 +162,22 @@ public class LevelManager : MonoBehaviour
             Debug.LogError("Trying to retrieve player position from null instance.");
             return;
         }
-
-        Debug.Log("changing input map");
         switch (newInputMap)
         {
             case InputMap.Player:
                 foreach(var playerInput in m_instance.m_playerInputs)
                 {
                     playerInput.SwitchCurrentActionMap("Player");
+                    Debug.Log(playerInput.currentControlScheme);
                 }
                 break;
             case InputMap.Inventory:
                 foreach (var playerInput in m_instance.m_playerInputs)
                 {
                     playerInput.SwitchCurrentActionMap("Inventory");
+                    Debug.Log(playerInput.currentControlScheme);
                 }
+                Debug.Log(m_instance.m_playerInputs[0].currentControlScheme);
                 break;
             case InputMap.Dead:
                 foreach (var playerInput in m_instance.m_playerInputs)
@@ -179,8 +185,7 @@ public class LevelManager : MonoBehaviour
                     playerInput.SwitchCurrentActionMap("Dead");
                 }
                 break;
-        }
-        
+        }  
     }
 
     public static Vector3Int GetRandomPosition()

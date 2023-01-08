@@ -131,3 +131,5 @@ MonoBehaviour:
   carryHands: 1
   useHands: 2
   toolCooldown: 2
+  toastMessage: The axe is good for chopping down trees.
+  firstTimeEquipping: 1

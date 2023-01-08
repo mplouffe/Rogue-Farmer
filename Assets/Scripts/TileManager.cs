@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static UnityEditor.PlayerSettings;
 
 public class TileManager : MonoBehaviour
 {
@@ -145,6 +142,7 @@ public class TileManager : MonoBehaviour
                 }
                 else if (tool == EquipmentId.DungeonSeed)
                 {
+                    Debug.Log("Planting dungeon seed");
                     tileData.TileType = TileType.Crop;
                     tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Crop].DayTile;
                     tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Crop].NightTile;
