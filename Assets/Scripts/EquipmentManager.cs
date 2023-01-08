@@ -122,5 +122,6 @@ public enum EquipmentId
     WateringCan,
     PruningSheers,
     DeSeeder,
-    Scythe
+    Scythe,
+    BagOfSeeds
 }

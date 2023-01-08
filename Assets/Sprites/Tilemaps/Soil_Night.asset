@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: Shrubs
+  m_Name: Soil_Night
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 5556267539920191985, guid: 110ba28ea40442d4f9872f46be67f29c, type: 3}
+  m_Sprite: {fileID: -9010872328137672664, guid: 61ebbf5c986b0df4b90aaacece8f755e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1

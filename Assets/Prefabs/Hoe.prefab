@@ -130,3 +130,4 @@ MonoBehaviour:
   EquipmentSprite: {fileID: -4707498580893855422, guid: a416c6e02e484c04aad3408f14c818b9, type: 3}
   carryHands: 1
   useHands: 2
+  toolCooldown: 3

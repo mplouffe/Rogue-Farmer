@@ -8,4 +8,5 @@ public class Equipment : MonoBehaviour
     public Sprite EquipmentSprite;
     public int carryHands;
     public int useHands;
+    public int toolCooldown;
 }

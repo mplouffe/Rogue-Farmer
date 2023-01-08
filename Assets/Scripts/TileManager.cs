@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEditor.PlayerSettings;
 
 public class TileManager : MonoBehaviour
 {
@@ -10,14 +11,17 @@ public class TileManager : MonoBehaviour
     private List<TileData> m_tileAssets;
 
     [SerializeField]
-    private Tilemap m_levelTilemap;
+    private Tilemap m_levelDayTilemap;
+
+    [SerializeField]
+    private Tilemap m_levelNightTilemap;
 
     public static TileManager Instance;
 
     private TileData[,] m_tileData;
     private bool m_initialized = false;
 
-    private Dictionary<TileType, Tile> m_tileAssetDictionary;
+    private Dictionary<TileType, (Tile DayTile, Tile NightTile)> m_tileAssetDictionary;
 
     private void Awake()
     {
@@ -29,14 +33,14 @@ public class TileManager : MonoBehaviour
 
         Instance = this;
 
-        m_tileAssetDictionary = new Dictionary<TileType, Tile>(m_tileAssets.Count);
+        m_tileAssetDictionary = new Dictionary<TileType, (Tile, Tile)>(m_tileAssets.Count);
         foreach(var tileAsset in m_tileAssets)
         {
-            m_tileAssetDictionary.Add(tileAsset.TileType, tileAsset.Tile);
+            m_tileAssetDictionary.Add(tileAsset.TileType, (tileAsset.DayTile, tileAsset.NightTile));
         }
     }
 
-    public static bool InitializeTileData(Vector3Int mapSize)
+     public static bool InitializeTileData(Vector3Int mapSize)
     {
         if (Instance == null)
         {
@@ -56,6 +60,8 @@ public class TileManager : MonoBehaviour
             for (int j = 0, d = mapSize.y; j < d; j++)
             {
                 Instance.m_tileData[i, j] = GetRandomTileData();
+                Instance.m_levelDayTilemap.SetTile(new Vector3Int(i, j, 0), Instance.m_tileData[i, j].DayTile);
+                Instance.m_levelNightTilemap.SetTile(new Vector3Int(i, j, 0), Instance.m_tileData[i, j].NightTile);
             }
         }
         Instance.m_initialized = true;
@@ -64,7 +70,7 @@ public class TileManager : MonoBehaviour
 
     public static TileData GetRandomTileData()
     {
-        var min = 1;
+        var min = 2;
         var max = Instance.m_tileAssets.Count;
 
         int randomTileIndex = Random.Range(min, max);
@@ -72,7 +78,8 @@ public class TileManager : MonoBehaviour
         return new TileData()
         {
             TileType = (TileType)randomTileIndex,
-            Tile = randomTile.Tile
+            DayTile = randomTile.DayTile,
+            NightTile = randomTile.NightTile,
         };
     }
 
@@ -105,15 +112,26 @@ public class TileManager : MonoBehaviour
             return;
         }
 
-        var tileData = Instance.m_tileData[tilePosition.x, tilePosition.y];
+        TileData tileData = Instance.m_tileData[tilePosition.x, tilePosition.y];
         bool tileUpdated = false;
         switch (tileData.TileType)
         {
+            case TileType.Soil:
+                if (tool == EquipmentId.BagOfSeeds)
+                {
+                    tileData.TileType = TileType.Crop;
+                    tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Crop].DayTile;
+                    tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Crop].NightTile;
+                    PlantManager.PlantSeed(tilePosition);
+                    tileUpdated = true;
+                }
+                break;
             case TileType.Dirt:
                 if (tool == EquipmentId.Hoe)
                 {
                     tileData.TileType = TileType.Soil;
-                    tileData.Tile = Instance.m_tileAssetDictionary[TileType.Soil];
+                    tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Soil].DayTile;
+                    tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Soil].NightTile;
                     tileUpdated = true;
                 }
                 break;
@@ -121,7 +139,8 @@ public class TileManager : MonoBehaviour
                 if (tool == EquipmentId.Shovel)
                 {
                     tileData.TileType = TileType.Dirt;
-                    tileData.Tile = Instance.m_tileAssetDictionary[TileType.Dirt];
+                    tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Dirt].DayTile;
+                    tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Dirt].NightTile;
                     tileUpdated = true;
                 }
                 break;
@@ -129,7 +148,8 @@ public class TileManager : MonoBehaviour
                 if (tool == EquipmentId.PickAxe)
                 {
                     tileData.TileType = TileType.Dirt;
-                    tileData.Tile = Instance.m_tileAssetDictionary[TileType.Dirt];
+                    tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Dirt].DayTile;
+                    tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Dirt].NightTile;
                     tileUpdated = true;
                 }
                 break;
@@ -137,15 +157,69 @@ public class TileManager : MonoBehaviour
                 if (tool == EquipmentId.Axe)
                 {
                     tileData.TileType = TileType.Scrub;
-                    tileData.Tile = Instance.m_tileAssetDictionary[TileType.Scrub];
+                    tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Scrub].DayTile;
+                    tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Scrub].NightTile;
                     tileUpdated = true;
+                }
+                break;
+            case TileType.Crop:
+                if (tool == EquipmentId.Scythe)
+                {
+                    if (PlantManager.TryHarvestCrop(tilePosition, out int plantYield))
+                    {
+                        tileData.TileType = TileType.Dirt;
+                        tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Dirt].DayTile;
+                        tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Dirt].NightTile;
+                        tileUpdated = true;
+                        InventoryManager.AddFruit(plantYield);
+                    }
                 }
                 break;
         }
 
         if (tileUpdated)
         {
-            Instance.m_levelTilemap.SetTile(tilePosition, tileData.Tile);
+            Instance.m_levelDayTilemap.SetTile(tilePosition, tileData.DayTile);
+            Instance.m_levelNightTilemap.SetTile(tilePosition, tileData.NightTile);
+        }
+    }
+
+    private static Color k_invisible = new Color(1, 1, 1, 0);
+    private static Color k_visibile = new Color(1, 1, 1, 1);
+
+    public static void SwapTimeOfDay(bool isNight)
+    {
+        if (Instance == null)
+        {
+            Debug.LogError("Trying to swap time of day on an null instance.");
+            return;
+        }
+
+        Instance.m_levelDayTilemap.color = isNight ? k_invisible : k_visibile;
+        Instance.m_levelNightTilemap.color = isNight ? k_visibile : k_invisible;
+    }
+
+    public static void PlantDiedOnTile(Vector3Int tilePosition)
+    {
+        if (!ManagerIsValid())
+        {
+            return;
+        }
+
+        TileData tileData = Instance.m_tileData[tilePosition.x, tilePosition.y];
+        bool tileUpdated = false;
+        if (tileData.TileType == TileType.Crop)
+        {
+            tileUpdated = true;
+            tileData.TileType = TileType.Scrub;
+            tileData.DayTile = Instance.m_tileAssetDictionary[TileType.Scrub].DayTile;
+            tileData.NightTile = Instance.m_tileAssetDictionary[TileType.Scrub].NightTile;
+        }
+
+        if (tileUpdated)
+        {
+            Instance.m_levelDayTilemap.SetTile(tilePosition, tileData.DayTile);
+            Instance.m_levelNightTilemap.SetTile(tilePosition, tileData.NightTile);
         }
     }
 
@@ -163,6 +237,7 @@ public class TileManager : MonoBehaviour
 public enum TileType
 {
     Soil,
+    Crop,
     Dirt,
     Rock,
     Scrub,
@@ -173,5 +248,6 @@ public enum TileType
 public class TileData
 {
     public TileType TileType;
-    public Tile Tile;
+    public Tile DayTile;
+    public Tile NightTile;
 }

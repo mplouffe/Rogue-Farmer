@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 25
-  m_Sprite: {fileID: 3716591375506089283, guid: a416c6e02e484c04aad3408f14c818b9, type: 3}
+  m_Sprite: {fileID: -8881941206738113277, guid: a416c6e02e484c04aad3408f14c818b9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 2808620198688247095}
   - component: {fileID: 8690894923100413243}
   m_Layer: 0
-  m_Name: Shovel
+  m_Name: Scythe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -126,8 +126,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a3b0e1dfc37b2349a188edd9413be08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EquipmentId: 1
-  EquipmentSprite: {fileID: 3716591375506089283, guid: a416c6e02e484c04aad3408f14c818b9, type: 3}
+  EquipmentId: 7
+  EquipmentSprite: {fileID: -8881941206738113277, guid: a416c6e02e484c04aad3408f14c818b9, type: 3}
   carryHands: 1
   useHands: 2
   toolCooldown: 4
