@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 5676878476972471774}
   - component: {fileID: 5676878476972471775}
   - component: {fileID: 4492829911393414923}
+  - component: {fileID: 6426211671634261161}
   m_Layer: 0
   m_Name: Farmer
   m_TagString: Untagged
@@ -169,7 +170,7 @@ MonoBehaviour:
   m_dropCooldownDuration: 0
   m_attackCooldownDuration: 0.5
   m_actingBar: {fileID: 5676878477799224346}
-  m_playerInput: {fileID: 0}
+  m_animationController: {fileID: 6426211671634261161}
   m_farmerStrength: 5
   m_farmerDamageFeedback: {fileID: 4492829911393414923}
 --- !u!114 &4492829911393414923
@@ -188,6 +189,20 @@ MonoBehaviour:
   m_totalBlinkDuration: 1
   m_blinkInterval: 0.2
   m_blinkColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &6426211671634261161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5676878476972471769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc7dba43c1a28e4f9e7171761741457, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_animator: {fileID: 5676878476174382541}
+  m_renderer: {fileID: 5676878476174382540}
 --- !u!1 &5676878477799224356
 GameObject:
   m_ObjectHideFlags: 0

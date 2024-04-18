@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
+[RequireComponent(typeof(FarmerAnimationController))]
 public class FarmerController : MonoBehaviour
 {
     [SerializeField] private float m_grabCooldownDuration;
@@ -14,6 +15,8 @@ public class FarmerController : MonoBehaviour
     [SerializeField] private float m_attackCooldownDuration;
 
     [SerializeField] private SpriteRenderer m_actingBar;
+
+    [SerializeField] private FarmerAnimationController m_animationController;
 
     private Equipment RightHand = null;
     private Equipment LeftHand = null;
@@ -123,6 +126,8 @@ public class FarmerController : MonoBehaviour
                     moveInterval.x = 1;
                 }
             }
+
+            m_animationController.UpdateDirection(moveInterval);
 
             var newPosition = transform.position + new Vector3(moveInterval.x, moveInterval.y, 0);
 
