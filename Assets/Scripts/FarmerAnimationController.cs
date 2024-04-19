@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class FarmerAnimationController : MonoBehaviour
 {
-    [SerializeField] Animator m_animator;
+    [SerializeField] Animator m_farmerAnimator;
+    [SerializeField] Animator m_itemAnimator;
 
     [SerializeField] SpriteRenderer m_renderer;
 
@@ -18,6 +19,60 @@ public class FarmerAnimationController : MonoBehaviour
         {
             UpdateDirection(direction);
         }
+    }
+
+    public void EquipAxe()
+    {
+        m_itemAnimator.SetBool("AxeEquipped", true);
+        m_itemAnimator.SetTrigger("EquipUpdated");
+        m_farmerAnimator.SetBool("HandsEmpty", false);
+        if (m_currentDirection == FarmerDirection.Up)
+        {
+            m_farmerAnimator.Play("FarmerIdle_Up", 0, 0.0f);
+        }
+        else if (m_currentDirection == FarmerDirection.Down)
+        {
+            m_farmerAnimator.Play("FarmerIdle_Down", 0, 0.0f);
+        }
+        else
+        {
+            m_farmerAnimator.SetTrigger("Idle");
+        }
+    }
+
+    public void EquipPickAxe()
+    {
+        m_itemAnimator.SetBool("PickAxeEquipped", true);
+        m_itemAnimator.SetTrigger("EquipUpdated");
+        m_farmerAnimator.SetBool("HandsEmpty", false);
+        if (m_currentDirection == FarmerDirection.Up)
+        {
+            m_farmerAnimator.Play("FarmerIdle_Up", 0, 0.0f);
+        }
+        else if (m_currentDirection == FarmerDirection.Down)
+        {
+            m_farmerAnimator.Play("FarmerIdle_Down", 0, 0.0f);
+        }
+        else
+        {
+            m_farmerAnimator.SetTrigger("Idle");
+        }
+    }
+
+    public void UnEquipAxe()
+    {
+        m_itemAnimator.SetBool("AxeEquipped", false);
+        m_itemAnimator.SetTrigger("EquipUpdated");
+        m_farmerAnimator.SetBool("HandsEmpty", true);
+        m_farmerAnimator.SetTrigger("Idle");
+    }
+
+    public void UnEquipPickAxe()
+    {
+        m_itemAnimator.SetBool("PickAxeEquipped", false);
+        m_itemAnimator.SetTrigger("EquipUpdated");
+        m_farmerAnimator.SetBool("HandsEmpty", true);
+        m_farmerAnimator.SetTrigger("Idle");
     }
 
     private FarmerDirection ParseNewDirection(Vector3 newDirection)
@@ -50,8 +105,12 @@ public class FarmerAnimationController : MonoBehaviour
 
     private void UpdateDirection(FarmerDirection direction)
     {
-        m_animator.SetInteger("FarmerDirection", (int)direction);
-        m_animator.SetTrigger("Idle");
+        m_farmerAnimator.SetInteger("FarmerDirection", (int)direction);
+        m_farmerAnimator.SetTrigger("Idle");
+
+        m_itemAnimator.SetInteger("FarmerDirection", (int)direction);
+        m_itemAnimator.SetTrigger("DirectionUpdated");
+        
         if (direction == FarmerDirection.Left)
         {
             m_renderer.flipX = true;

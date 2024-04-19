@@ -29,6 +29,15 @@ TextureImporter:
   - first:
       213: -2606909459342114923
     second: FarmerIdle_01_8
+  - first:
+      213: 3450168554827263758
+    second: FarmerIdle_01_9
+  - first:
+      213: 5109544521647318696
+    second: FarmerIdle_01_10
+  - first:
+      213: -2619791837489383637
+    second: FarmerIdle_01_11
   externalObjects: {}
   serializedVersion: 12
   mipmaps:
@@ -321,6 +330,69 @@ TextureImporter:
       bones: []
       spriteID: 59fbe42a8a562dbd0800000000000000
       internalID: -2606909459342114923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FarmerIdle_01_9
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e0fa3b5550671ef20800000000000000
+      internalID: 3450168554827263758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FarmerIdle_01_10
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 32
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8a6e4d0cbafb8e640800000000000000
+      internalID: 5109544521647318696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FarmerIdle_01_11
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b273afc3431a4abd0800000000000000
+      internalID: -2619791837489383637
       vertices: []
       indices: 
       edges: []

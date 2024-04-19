@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -16,7 +17,7 @@ public class FarmerController : MonoBehaviour
 
     [SerializeField] private SpriteRenderer m_actingBar;
 
-    [SerializeField] private FarmerAnimationController m_animationController;
+    [SerializeField] private FarmerAnimationController m_farmerAnimationController;
 
     private Equipment RightHand = null;
     private Equipment LeftHand = null;
@@ -127,7 +128,7 @@ public class FarmerController : MonoBehaviour
                 }
             }
 
-            m_animationController.UpdateDirection(moveInterval);
+            m_farmerAnimationController.UpdateDirection(moveInterval);
 
             var newPosition = transform.position + new Vector3(moveInterval.x, moveInterval.y, 0);
 
@@ -182,6 +183,17 @@ public class FarmerController : MonoBehaviour
                         break;
                 }
                 EquipmentManager.GrabEquipmentAtPosition(position);
+
+                switch (equipment.EquipmentId)
+                {
+                    case EquipmentId.Axe:
+                        m_farmerAnimationController.EquipAxe();
+                        break;
+                    case EquipmentId.PickAxe:
+                        m_farmerAnimationController.EquipPickAxe();
+                        break;
+                }
+
                 if (equipment.firstTimeEquipping)
                 {
                     equipment.firstTimeEquipping = false;
@@ -218,12 +230,21 @@ public class FarmerController : MonoBehaviour
                 if (EquipmentManager.DropEquipmentAtPosition(position, RightHand))
                 {
                     Toaster.PopToast("You dropped the " + RightHand.EquipmentId);
+                    switch (RightHand.EquipmentId)
+                    {
+                        case EquipmentId.Axe:
+                            m_farmerAnimationController.UnEquipAxe();
+                            break;
+                        case EquipmentId.PickAxe:
+                            m_farmerAnimationController.UnEquipPickAxe();
+                            break;
+                    }
+
                     if (RightHand.carryHands == 2)
                     {
                         LeftHand = null;
                     }
                     RightHand = null;
-
                 }
             }
             else if (LeftHand != null)
@@ -231,6 +252,15 @@ public class FarmerController : MonoBehaviour
                 if (EquipmentManager.DropEquipmentAtPosition(position, LeftHand))
                 {
                     Toaster.PopToast("You dropped the " + LeftHand.EquipmentId);
+                    switch (RightHand.EquipmentId)
+                    {
+                        case EquipmentId.Axe:
+                            m_farmerAnimationController.UnEquipAxe();
+                            break;
+                        case EquipmentId.PickAxe:
+                            m_farmerAnimationController.UnEquipPickAxe();
+                            break;
+                    }
                     LeftHand = null;
                 }
             }
